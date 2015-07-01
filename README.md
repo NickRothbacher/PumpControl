@@ -1,2 +1,2 @@
 # PumpControl
-Simple program to control open source syringe pump
+Simple program to manually control open source syringe pump
