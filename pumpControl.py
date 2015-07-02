@@ -1,3 +1,5 @@
+#!/usr/bin/env python
+
 #simple program to move syringe pump a set distance when a button is pushed.
 import sys
 import os
@@ -17,15 +19,17 @@ STEP = 13
 SLEEP = 15
 
 #STD_INC for movement
-#STD_INC = 200
+STD_INC = 1
 
 gpio.setup(SLEEP, gpio.OUT, initial = gpio.HIGH)
 gpio.setup(STEP, gpio.OUT, initial = gpio.HIGH)
 gpio.setup(DIR, gpio.OUT, initial = gpio.HIGH)
 
 #initialize pygame stuff
-os.environ["SDL_VIDEODRIVER"] = "dummy"
+#os.environ["SDL_VIDEODRIVER"] = "dummy"
 pygame.init()
+screen = pygame.display.set_mode((640, 480))
+pygame.display.flip()
 
 #joystick stuff for later
 pygame.joystick.init() # main joystick device system
@@ -56,11 +60,14 @@ class Pump:
 		if direction > 0:
 			gpio.output(DIR,  gpio.HIGH) 
 			#self.state = "push"
-		else: 
+		elif direction < 0: 
 			gpio.output(DIR, gpio.LOW)
 			#self.state = "pull"
-
-		for x in range(2):
+		
+		else: 
+			return
+	
+		for x in range(self.steps):
 			gpio.output(STEP, gpio.HIGH)
 			time.sleep(0.002)
 
@@ -75,6 +82,7 @@ pump = Pump(STD_INC)
 print "Press w to push, s to pull, press esc to quit."
 sys.stdout.flush()
 
+m1 = 0 #pump1
 #infiniloop for input
 while(True):
 	#letter input (deprecated)
@@ -91,22 +99,22 @@ while(True):
 	#	sys.stdout.flush()
 
 	for e in pygame.event.get(): #iterate over pygame event stack
-		if e.type == pygame.locals.KEYDOWN:
-			if e.key == K_w: #forward motion
+		if e.type == pygame.KEYDOWN:
+			if e.key == pygame.K_w: #forward motion
 				print "W pressed"
-				pump.move(1)
-		 	elif e.key == K_s: #backward motion
+				m1 = 1
+		 	elif e.key == pygame.K_s: #backward motion
 				print "S pressed"
-				pump.move(-1)
-			elif e.key == K_ESCAPE:
+				m1 = -1
+			elif e.key == pygame.K_ESCAPE:
 				sys.exit(1)
 
-		elif e.type == pygame.locals.KEYUP:
-			if e.key == K_w or e.key == K_s:
+		elif e.type == pygame.KEYUP:
+			if e.key == pygame.K_w or e.key == pygame.K_s:
 				print "Key released"
-				pump.sleep()
+				m1 = 0
 
-		elif e.type == pygame.locals.JOYAXISMOTION:	#read Analog stick motion
+		if e.type == pygame.locals.JOYAXISMOTION:	#read Analog stick motion
 			x1, y1 = j.get_axis(0), j.get_axis(1) #Left Stick
 			y2, x2 = j.get_axis(2), j.get_axis(3) #Right Stick (not in use)
 
@@ -126,11 +134,12 @@ while(True):
 
 			if y1 < -1 *deadZone:
 				print "Up Joystick 1"
-				pump.move(1) #push forward
+				m1 = 1 #push forward
 
 			if y1 > deadZone:
 				print "Down Joystick 1"
-				pump.move(-1) #pull back
+				m1 = -1 #pull back
 
+	pump.move(m1)
 
 gpio.cleanup()
