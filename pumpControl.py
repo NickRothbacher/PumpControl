@@ -7,23 +7,26 @@ import pygame
 from pygame import locals
 import time
 import RPi.GPIO as gpio
+import spidev
 
 #set up gpio correctly
 gpio.setwarnings(False)
 gpio.setmode(gpio.BOARD)
-gpio.cleanup()
 
 #set gpio pin numbers 
-DIR = 11
-STEP = 13
+DIR_0 = 11
+STEP_0 = 13
 SLEEP = 15
 
-#STD_INC for movement
+#Standard incremeant for movement
 STD_INC = 1
 
+#wait time
+WAIT = 0.002
+
 gpio.setup(SLEEP, gpio.OUT, initial = gpio.HIGH)
-gpio.setup(STEP, gpio.OUT, initial = gpio.HIGH)
-gpio.setup(DIR, gpio.OUT, initial = gpio.HIGH)
+gpio.setup(STEP_0, gpio.OUT, initial = gpio.HIGH)
+gpio.setup(DIR_0, gpio.OUT, initial = gpio.HIGH)
 
 #initialize pygame stuff
 #os.environ["SDL_VIDEODRIVER"] = "dummy"
@@ -31,8 +34,7 @@ pygame.init()
 screen = pygame.display.set_mode((640, 480))
 pygame.display.flip()
 
-#joystick stuff for later
-pygame.joystick.init() # main joystick device system
+pygame.joystick.init() #pygame joystick device system (for usb gamepad)
 
 deadZone = 0.6 # make a wide deadzone
 m1 = 0 # motor 1 (1 = forward / 2 = backwards)
@@ -40,79 +42,79 @@ m2 = 0 # motor 2 (1 = forward / 2 = backwards)
 try:
    j = pygame.joystick.Joystick(0) # create a joystick instance
    j.init() # init instance
-   print 'Enabled joystick: ' + j.get_name()
+   print 'Enabled usb joystick: ' + j.get_name()
 except pygame.error:
-   print 'no joystick found.'
+   print 'no usb joystick found.'
+
+#SPI Joystick setup
+spi = spidev.SpiDev()
+spi.open(0,0)
+
+#Function to read SPI data from MCP3008 chip
+#channel must be int 0-7
+def ReadChannel(channel):
+	adc = spi.xfer2([1,(8+channel)<<4,0])
+	data = ((adc[1]&3) << 8) + adc[2]
+	return data
 
 
 #pump class for pump control methods
 class Pump:
-	def __init__(self, steps):
+	def __init__(self, steps, dir_pin, step_pin):
 		self.steps = steps
-		#self.state = "still"
-
-	#def update(self):
-
+		self.dir = dir_pin
+		self.step = step_pin
 
 	def move(self, direction):
 		gpio.output(SLEEP, gpio.HIGH)
 		
 		if direction > 0:
-			gpio.output(DIR,  gpio.HIGH) 
+			gpio.output(self.dir,  gpio.HIGH) 
 			#self.state = "push"
 		elif direction < 0: 
-			gpio.output(DIR, gpio.LOW)
+			gpio.output(self.dir, gpio.LOW)
 			#self.state = "pull"
 		
 		else: 
 			return
 	
 		for x in range(self.steps):
-			gpio.output(STEP, gpio.HIGH)
+			gpio.output(self.step, gpio.HIGH)
 			time.sleep(0.002)
 
-			gpio.output(STEP, gpio.LOW)
-			time.sleep(0.002)
+			gpio.output(self.step, gpio.LOW)
+			time.sleep(WAIT)
 
-	def sleep(self):
-		gpio.output(SLEEP, gpio.LOW)
+	#def sleep(self):
+	#	gpio.output(SLEEP, gpio.LOW)
 
-pump = Pump(STD_INC)
+pump0 = Pump(STD_INC, DIR_0, STEP_0)
+#pump1 = Pump(STD_INC, DIR_1, STEP_1)
+#pump2 = Pump(STD_INC, DIR_2, STEP_2)
+#pump3 = Pump(STD_INC, DIR_3, STEP_3)
 
-print "Press w to push, s to pull, press esc to quit."
-sys.stdout.flush()
+#no movement at 0, pull if < 0, push if > 0
+pump_m = [0,0,0,0]
+#analog channels
+CHANNEL_NUM = 4
 
-m1 = 0 #pump1
 #infiniloop for input
 while(True):
-	#letter input (deprecated)
-	#temp = raw_input()
-
-	#if temp is "w":
-	#	pump.move(1)
-
-	#elif temp is "s":
-	#	pump.move(-1)
-
-	#elif temp is "q":
-	#	print "exiting"
-	#	sys.stdout.flush()
-
 	for e in pygame.event.get(): #iterate over pygame event stack
 		if e.type == pygame.KEYDOWN:
-			if e.key == pygame.K_w: #forward motion
+			if e.key == pygame.K_w: #forward motion on pump0
 				print "W pressed"
-				m1 = 1
-		 	elif e.key == pygame.K_s: #backward motion
+				pump_m[0] = 1
+		 	elif e.key == pygame.K_s: #backward motion on pump0
 				print "S pressed"
-				m1 = -1
+				pump_m[0] = -1
 			elif e.key == pygame.K_ESCAPE:
 				sys.exit(1)
 
 		elif e.type == pygame.KEYUP:
 			if e.key == pygame.K_w or e.key == pygame.K_s:
-				print "Key released"
-				m1 = 0
+				print "Key released" #Stop pump0
+				pump_m[0] = 0
 
 		if e.type == pygame.locals.JOYAXISMOTION:	#read Analog stick motion
 			x1, y1 = j.get_axis(0), j.get_axis(1) #Left Stick
@@ -139,7 +141,24 @@ while(True):
 			if y1 > deadZone:
 				print "Down Joystick 1"
 				m1 = -1 #pull back
+	
+	#cycle through the possible channels and set the movement integers based on the input from the channels
+#	for x in range(CHANNEL_NUM):
+#		joy_value = ReadChannel(x)
+		
+		#joystick center is supposed to be 511.5
+#		if joy_value < 500:
+#			pump_m[x] = -1 
+#		elif joy_value > 530:
+#			pump_m[x] = 1
+#		else:
+#			pump_m[x] = 0
+	
+	#resolve movement
+	pump0.move(pump_m[0])
+	#pump1.move(pump_m[1])
+	#pump2.move(pump_m[2])
+	#pump3.move(pump_m[3])			
 
-	pump.move(m1)
 
 gpio.cleanup()
