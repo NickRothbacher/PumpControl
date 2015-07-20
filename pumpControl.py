@@ -18,11 +18,11 @@ DIR_0 = 11
 STEP_0 = 13
 SLEEP = 15
 
-#Standard incremeant for movement
-STD_INC = 1
+#Standard increment for movement
+STD_INC = 600
 
 #wait time
-WAIT = 0.002
+WAIT = 0.998
 
 gpio.setup(SLEEP, gpio.OUT, initial = gpio.HIGH)
 gpio.setup(STEP_0, gpio.OUT, initial = gpio.HIGH)
@@ -100,6 +100,22 @@ CHANNEL_NUM = 4
 
 #infiniloop for input
 while(True):
+	#cycle through the possible channels and set the movement integers based on the input from the channels
+	for x in range(CHANNEL_NUM):
+		joy_value = ReadChannel(x)
+		
+		print joy_value
+		#joystick center is supposed to be 511.5
+		if joy_value < 500:
+#			pump_m[x] = -1 
+			print 
+
+		elif joy_value > 530:
+			pump_m[x] = 1
+
+		else:
+			pump_m[x] = 0
+
 	for e in pygame.event.get(): #iterate over pygame event stack
 		if e.type == pygame.KEYDOWN:
 			if e.key == pygame.K_w: #forward motion on pump0
@@ -142,17 +158,7 @@ while(True):
 				print "Down Joystick 1"
 				m1 = -1 #pull back
 	
-	#cycle through the possible channels and set the movement integers based on the input from the channels
-#	for x in range(CHANNEL_NUM):
-#		joy_value = ReadChannel(x)
 		
-		#joystick center is supposed to be 511.5
-#		if joy_value < 500:
-#			pump_m[x] = -1 
-#		elif joy_value > 530:
-#			pump_m[x] = 1
-#		else:
-#			pump_m[x] = 0
 	
 	#resolve movement
 	pump0.move(pump_m[0])
