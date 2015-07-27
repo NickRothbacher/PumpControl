@@ -98,7 +98,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	WAIT = 0.002 
 
 	#init my_threads storage, to keep track of timer threads outside loop.
-	my_threads = [threading.Timer(), threading.Timer(), threading.Timer(), threading.Time()]
+	my_threads = [None, None, None, None]
 	
 	#loop while there are steps to do
 	while(x > 0 for x in pump_steps):
@@ -108,8 +108,9 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 		#arg as the args for the called function.
 		#The corresponding pump_steps entry is then decremented to reflect change
 		for y in range(NUM_PUMPS):
-
-			if(pump_steps[y] > 0 and my_threads[y].is_alive() == False):
+			if my_threads[y] == None:
+				my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y]) 
+			elif(pump_steps[y] > 0 and my_threads[y].is_alive() == False):
 				my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
 				my_threads[y].start()
 				pump_steps[y] -= 1
@@ -248,7 +249,7 @@ elif(MODE == 1):
 		time = int(time)
 
 		#set corresponding list entries for this pump to the correct variables for movement.
-		if pump_num < NUM_PUMP
+		if pump_num < NUM_PUMPS:
 			pump_waits[pump_num] = (time/num_steps) - 0.002
 			pump_steps[pump_num] = pump_steps
 			pump_m[pump_num] = direction			
