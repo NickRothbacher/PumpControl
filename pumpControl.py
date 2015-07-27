@@ -99,7 +99,8 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	my_threads = [None, None, None, None]
 	
 	#loop while there are steps to do
-	while(x > 0 for int(x) in pump_steps):
+	while(x > 0 for x in pump_steps):
+		print type(x)
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
