@@ -112,7 +112,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 				my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
 				my_threads[y].start()
 				
-				temp_steps = pump_steps[y]
+				temp_steps = int(pump_steps[y])
 				temp_steps -= 1
 				pump_steps[y] = temp_steps
 
