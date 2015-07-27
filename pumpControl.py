@@ -98,6 +98,9 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	#init my_threads storage, to keep track of timer threads outside loop.
 	my_threads = [None, None, None, None]
 	
+	for x in pump_steps:
+		print x
+
 	#loop while there are steps to do
 	while(x > 0 for x in pump_steps):
 		print x
