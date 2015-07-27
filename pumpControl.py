@@ -99,22 +99,24 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	my_threads = [None, None, None, None]
 	
 	#loop while there are steps to do
-	while(x > 0 for x in pump_steps):
-		#Timers, to handle waits simultaneously, correspond to pump numbers
+	while(True):
+		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
 		#arg as the args for the called function.
 		#The corresponding pump_steps entry is then decremented to reflect change
 		for y in range(NUM_PUMPS):
-			if my_threads[y] == None:
-				my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y]) 
-			elif(pump_steps[y] > 0 and my_threads[y].is_alive() == False):
-				my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
-				my_threads[y].start()
-				
-				temp_steps = int(pump_steps[y])
-				temp_steps -= 1
-				pump_steps[y] = temp_steps
+			if pump_steps[y] > 0:
+
+				if my_threads[y] == None:
+					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y]) 
+					my_threads[y].start()
+				elif(pump_steps[y] > 0 and my_threads[y].is_alive() == False):
+					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
+					my_threads[y].start()
+
+				pump_steps[y] -= 1	
+
 
 #instant input instant movement 
 if (MODE == 0):
@@ -255,16 +257,16 @@ elif(MODE == 1):
 		num_steps = abs(num_steps)
 
 		#get the time these should occur accross and parse it.
-		time = raw_input("Time to do steps in (seconds): ")
+		time_in = raw_input("Time to do steps in (seconds): ")
 		try:
-			time = int(time)
+			time_in = int(time_in)
 		except ValueError:
 			print "Invalid time."
 			continue
 
 		#set corresponding list entries for this pump to the correct variables for movement.
 		if pump_num < NUM_PUMPS:
-			pump_waits[pump_num] = (time/num_steps) - 0.002
+			pump_waits[pump_num] = (time_in/num_steps) - 0.002
 			pump_steps[pump_num] = pump_steps
 			pump_m[pump_num] = direction			
 		else:
