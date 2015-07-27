@@ -97,13 +97,9 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 
 	#init my_threads storage, to keep track of timer threads outside loop.
 	my_threads = [None, None, None, None]
-	
-	for x in pump_steps:
-		print x
 
 	#loop while there are steps to do
 	while(x > 0 for x in pump_steps):
-		print x
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
@@ -113,19 +109,12 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 				if pump_steps[y] > 0 and my_threads[y] == None:
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y]) 
 					my_threads[y].start()
-					temp_steps = pump_steps[y]
-					print type(temp_steps)
-					temp_steps -= 1
-					pump_steps[y] = temp_steps
+					pump_steps[y] -= 1
 
 				elif pump_steps[y] > 0 and my_threads[y].is_alive() == False:
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].start()
-					temp_steps = pump_steps[y]
-					print type(temp_steps)
-					temp_steps -= 1
-					pump_steps[y] = temp_steps
-
+					pump_steps[y] -= 1
 
 #instant input instant movement 
 if (MODE == 0):
@@ -276,7 +265,7 @@ elif(MODE == 1):
 		#set corresponding list entries for this pump to the correct variables for movement.
 		if pump_num < NUM_PUMPS:
 			pump_waits[pump_num] = (time_in/num_steps) - 0.002
-			pump_steps[pump_num] = pump_steps
+			pump_steps[pump_num] = num_steps
 			pump_m[pump_num] = direction			
 		else:
 			print "Invalid pump number"
