@@ -54,8 +54,6 @@ class Pump:
 
 	#move the pump one standard increment.
 	def move(self, direction, num):
-		gpio.output(SLEEP, gpio.HIGH)
-		
 		if direction > 0:
 			gpio.output(self.dir,  gpio.HIGH) 
 		elif direction < 0: 
@@ -113,7 +111,10 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 			elif(pump_steps[y] > 0 and my_threads[y].is_alive() == False):
 				my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
 				my_threads[y].start()
-				pump_steps[y] -= 1
+				
+				temp_steps = pump_steps[y]
+				temp_steps -= 1
+				pump_steps[y] = temp_steps
 
 #instant input instant movement 
 if (MODE == 0):
