@@ -109,12 +109,11 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 				if pump_steps[y] > 0 and my_threads[y] == None:
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y]) 
 					my_threads[y].start()
+					pump_steps[y] -= 1
 				elif pump_steps[y] > 0 and my_threads[y].is_alive() == False:
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].start()
-
-				pump_steps[y] -= 1
-
+					pump_steps[y] -= 1
 
 
 #instant input instant movement 
