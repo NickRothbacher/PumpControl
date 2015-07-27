@@ -232,21 +232,34 @@ elif(MODE == 1):
 			sys.exit(0)
 		
 		#parse the entered pump number to an int
-		pump_num = int(pump_num)
-		
+		try:
+			pump_num = int(pump_num)
+		except ValueError:
+			print "Invalid pump number."
+			continue
+
 		#get the number of steps the user would like to make the pump do, parse them and then get the direction and absolute value
 		num_steps = raw_input("Number of steps to move it in: ")
-		num_steps = int(num_steps)
+		
+		try:	
+			num_steps = int(num_steps)
+		except ValueError:
+			print "Invalid step number."
+			continue
+
 		if (num_steps < 0):
 			direction = -1
 		else:
 			direction = 1
-		
 		num_steps = abs(num_steps)
 
 		#get the time these should occur accross and parse it.
 		time = raw_input("Time to do steps in (seconds): ")
-		time = int(time)
+		try:
+			time = int(time)
+		except ValueError:
+			print "Invalid time."
+			continue
 
 		#set corresponding list entries for this pump to the correct variables for movement.
 		if pump_num < NUM_PUMPS:
