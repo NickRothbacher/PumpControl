@@ -13,8 +13,6 @@ import threading
 config = {}
 execfile("pumpSettings.py", config)
 
-print config
-
 #set up gpio correctly
 gpio.setwarnings(False)
 gpio.setmode(gpio.BOARD)
@@ -22,17 +20,6 @@ gpio.setmode(gpio.BOARD)
 #set gpio pin numbers
 DIR_PINS = config["direction_pins"]
 STEP_PINS = config["step_pins"]
-#DIR_0 = config["direction1"]
-#STEP_0 = config["step1"]
-
-#DIR_1 = config["direction2"]
-#STEP_1 = config["step2"]
-
-#DIR_2 = config["direction3"]
-#STEP_2 = config["step3"]
-#
-#DIR_3= config["direction4"]
-#STEP_3 = config["step4"]
 
 #Standard increment for movement
 STD_INC = config["steps"]
@@ -120,22 +107,12 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 		#then execute the function given as their second arg based on the third
 		#arg as the args for the called function.
 		#The corresponding pump_steps entry is then decremented to reflect change
-		if(pump_steps[0] > 0 and my_threads[0].is_alive() == False):
-			my_threads[0] = threading.Timer(pump_waits[0], pump0.move, [pump_m[0], 0])
-			my_threads[0].start()
-			pump_steps[0] -= 1
-		if(pump_steps[1] > 0 and my_threads[1].is_alive() == False):
-			t1 = threading.Thread(pump_waits[1], pump1.move, [pump_m[1]], 1)
-			t1.start()
-			pump_steps[1] -= 1
-		if(pump_steps[2] > 0 and my_threads[2].is_alive() == False):
-			t2 = threading.Timer(pump_waits[2], pump2.move, [pump_m[2]], 2)
-			t2.start()
-			pump_steps[2] -= 1
-		if(pump_steps[3] > 0 and my_threads[3].is_alive() == False):
-			t3 = threading.Timer(pump_waits[3], pump2.move, [pump_m[3]], 3)
-			t3.start()
-			pump_steps[3] -= 1
+		for y in range(NUM_PUMPS):
+
+			if(pump_steps[y] > 0 and my_threads[y].is_alive() == False):
+				my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
+				my_threads[y].start()
+				pump_steps[y] -= 1
 
 #instant input instant movement 
 if (MODE == 0):
