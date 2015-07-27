@@ -137,8 +137,8 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 			t3.start()
 			pump_steps[3] -= 1
 
-#instant input instant 
-if (mode == 0):
+#instant input instant movement 
+if (MODE == 0):
 	#initialize pygame stuff
 	#os.environ["SDL_VIDEODRIVER"] = "dummy"
 	pygame.init()
@@ -236,39 +236,47 @@ if (mode == 0):
 		
 	
 		#resolve movement
-		pump0.move(pump_m[0])
-		if num_pumps > 1: 
-			pump1.move(pump_m[1])
-		if num_pumps > 2:
-			pump2.move(pump_m[2])
-		if num_pumps > 3:
-			pump3.move(pump_m[3])	
+		for x in range(NUM_PUMPS):
+			pump_objs[x].move(pump_m[x])
+
 
 #single direction mode (keyboard entry)
-elif(mode == 1):
+elif(MODE == 1):
 	while(True):
-		pump_num = raw_input("Pump to move: (type 'start' or 's' to move them and 'exit' or 'e' to exit)")
+		#get the number of the pump the user wants to set the movement on.
+		pump_num = raw_input("Pump to move: (type 'start' or 's' to move them and 'exit' or 'e' to exit): ")
+		#if the user tells the program to start, run the simultaneous movement function
 		if pump_num == "start" or pump_num == "s":
 			simultaneousMove(pump_waits, pump_steps, pump_m)
+		#if the user says to exit, do so
 		if pump_num == "exit" or pump_num == "e":
 			gpio.cleanup()
 			sys.exit(0)
-
+		
+		#parse the entered pump number to an int
+		pump_num = int(pump_num)
+		
+		#get the number of steps the user would like to make the pump do, parse them and then get the direction and absolute value
 		num_steps = raw_input("Number of steps to move it in: ")
+		num_steps = int(num_steps)
 		if (num_steps < 0):
-			pump_m[pump_num] = -1
-			pump_steps[pump_num] = abs(num_steps)
-
+			direction = -1
 		else:
 			direction = 1
+		
+		num_steps = abs(num_steps)
 
+		#get the time these should occur accross and parse it.
 		time = raw_input("Time to do steps in (seconds): ")
-		pump_waits[pump_num] = (time/num_steps) - 0.002
+		time = int(time)
 
-		if pump_num == 0:
-			pump0.move(direction)
+		#set corresponding list entries for this pump to the correct variables for movement.
+		if pump_num < NUM_PUMP
+			pump_waits[pump_num] = (time/num_steps) - 0.002
+			pump_steps[pump_num] = pump_steps
+			pump_m[pump_num] = direction			
 		else:
-			print "Invalid pump"
+			print "Invalid pump number"
 
 #alternating direction mode (keyboard entry)
 #elif(mode == 2):
