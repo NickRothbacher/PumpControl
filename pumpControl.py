@@ -100,6 +100,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	
 	#loop while there are steps to do
 	while(x > 0 for x in pump_steps):
+		print x
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
@@ -113,7 +114,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 					print type(temp_steps)
 					temp_steps -= 1
 					pump_steps[y] = temp_steps
-					
+
 				elif pump_steps[y] > 0 and my_threads[y].is_alive() == False:
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].start()
