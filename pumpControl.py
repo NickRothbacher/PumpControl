@@ -63,7 +63,7 @@ class Pump:
 			return
 	
 		try:
-			print ("moving pump %", num)
+			print "moving pump " + num
 			for x in range(self.steps):
 				gpio.output(self.step, gpio.HIGH)
 				time.sleep(0.002)
@@ -99,7 +99,8 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	my_threads = [None, None, None, None]
 
 	#loop while there are steps to do
-	while(x > 0 for x in pump_steps):
+	while(any(x > 0 for x in pump_steps)):
+		sys.stdout.write('.')
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
@@ -107,11 +108,13 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 		#The corresponding pump_steps entry is then decremented to reflect change
 		for y in range(NUM_PUMPS):
 				if pump_steps[y] > 0 and my_threads[y] == None:
+					print "making first timer for pump", y
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y]) 
 					my_threads[y].start()
 					pump_steps[y] -= 1
 
 				elif pump_steps[y] > 0 and my_threads[y].is_alive() == False:
+					print "making new timer for pump", y
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].start()
 					pump_steps[y] -= 1
@@ -227,6 +230,7 @@ elif(MODE == 1):
 		#if the user tells the program to start, run the simultaneous movement function
 		if pump_num == "start" or pump_num == "s":
 			simultaneousMove(pump_waits, pump_steps, pump_m)
+			continue
 		#if the user says to exit, do so
 		if pump_num == "exit" or pump_num == "e":
 			gpio.cleanup()
