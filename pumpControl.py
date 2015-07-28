@@ -95,7 +95,7 @@ pump_waits = [0,0,0,0]
 
 def simultaneousMove(pump_waits, pump_steps, pump_m):
 	#reset the wait time to a known value.
-	WAIT = 0.002 
+	WAIT = 0
 
 	#init my_threads storage, to keep track of timer threads outside loop.
 	my_threads = [None, None, None, None]
@@ -266,7 +266,7 @@ elif(MODE == 1):
 
 		#set corresponding list entries for this pump to the correct variables for movement.
 		if pump_num < NUM_PUMPS:
-			pump_waits[pump_num] = (time_in/num_steps) - 0.004
+			pump_waits[pump_num] = (time_in/num_steps) - 0.002
 			pump_steps[pump_num] = num_steps
 			pump_m[pump_num] = direction			
 		else:
