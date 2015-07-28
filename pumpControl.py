@@ -63,7 +63,7 @@ class Pump:
 			return
 	
 		try:
-			print "moving pump " + num
+			print "moving pump ", num
 			for x in range(self.steps):
 				gpio.output(self.step, gpio.HIGH)
 				time.sleep(0.002)
@@ -100,22 +100,17 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 
 	#loop while there are steps to do
 	while(any(x > 0 for x in pump_steps)):
-		sys.stdout.write('.')
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
 		#arg as the args for the called function.
 		#The corresponding pump_steps entry is then decremented to reflect change
 		for y in range(NUM_PUMPS):
-				if pump_steps[y] > 0 and my_threads[y] == None:
-					print "making first timer for pump", y
-					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y]) 
-					my_threads[y].start()
-					pump_steps[y] -= 1
-
-				elif pump_steps[y] > 0 and my_threads[y].is_alive() == False:
+			if pump_steps[y] > 0:
+				if my_threads[y] == None or my_threads[y].is_alive() == False:
 					print "making new timer for pump", y
 					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
+					my_threads[y].daemon = True
 					my_threads[y].start()
 					pump_steps[y] -= 1
 
@@ -268,7 +263,7 @@ elif(MODE == 1):
 
 		#set corresponding list entries for this pump to the correct variables for movement.
 		if pump_num < NUM_PUMPS:
-			pump_waits[pump_num] = (time_in/num_steps) - 0.002
+			pump_waits[pump_num] = (time_in/num_steps) - 0.004
 			pump_steps[pump_num] = num_steps
 			pump_m[pump_num] = direction			
 		else:
