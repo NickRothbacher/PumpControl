@@ -9,6 +9,7 @@ import time
 import RPi.GPIO as gpio
 import spidev
 import threading
+import datetime
 
 config = {}
 execfile("pumpSettings.py", config)
@@ -64,6 +65,7 @@ class Pump:
 	
 		try:
 			print "moving pump ", num
+			print datetime.datetime.now()
 			for x in range(self.steps):
 				gpio.output(self.step, gpio.HIGH)
 				time.sleep(0.002)
@@ -97,7 +99,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 
 	#init my_threads storage, to keep track of timer threads outside loop.
 	my_threads = [None, None, None, None]
-
+	next_calls = [time.time(), time.time(), time.time(), time.time()]
 	#loop while there are steps to do
 	while(any(x > 0 for x in pump_steps)):
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
@@ -108,8 +110,9 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 		for y in range(NUM_PUMPS):
 			if pump_steps[y] > 0:
 				if my_threads[y] == None or my_threads[y].is_alive() == False:
+					next_calls[y] = next_calls[y] + pump_waits[y]
 					print "making new timer for pump", y
-					my_threads[y] = threading.Timer(pump_waits[y], pump_objs[y].move, [pump_m[y], y])
+					my_threads[y] = threading.Timer(next_calls[y] - time.time(), pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].daemon = True
 					my_threads[y].start()
 					pump_steps[y] -= 1
