@@ -12,7 +12,7 @@ import threading
 import datetime
 
 config = {}
-execfile("pumpSettings.py", config)
+execfile(sys.path[0]+"/pumpSettings.py", config)
 
 #set up gpio correctly
 gpio.setwarnings(False)
