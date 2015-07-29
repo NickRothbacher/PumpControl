@@ -106,8 +106,13 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 
 	next_calls = [micro_time(), micro_time(), micro_time(), micro_time()]
 	
+	move_steps = []
+
+	for x in NUM_PUMPS:
+		move_steps.append(pump_steps[x])
+
 	#loop while there are steps to do
-	while(any(x > 0 for x in pump_steps)):
+	while(any(x > 0 for x in move_steps)):
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
@@ -120,7 +125,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 					my_threads[y] = threading.Timer(next_calls[y] - micro_time(), pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].daemon = True
 					my_threads[y].start()
-					pump_steps[y] -= 1
+					move_steps[y] -= 1
 
 #instant input instant movement 
 if (MODE == 0):
