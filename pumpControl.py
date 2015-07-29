@@ -92,13 +92,20 @@ CHANNEL_NUM = config["channels"]
 pump_steps = [0,0,0,0]
 pump_waits = [0,0,0,0]
 
+def micro_time():
+	time = datetime.datetime.now()
+
+	return (time.days * 24 * 60 * 60 + c.seconds) + (c.microseconds / 1000000.0)
+
 def simultaneousMove(pump_waits, pump_steps, pump_m):
 	#reset the wait time to a known value.
 	WAIT = 0
 
 	#init my_threads storage, to keep track of timer threads outside loop.
 	my_threads = [None, None, None, None]
-	next_calls = [time.time(), time.time(), time.time(), time.time()]
+
+	next_calls = [micro_time(), micro_time(), micro_time(), micro_time()]
+	
 	#loop while there are steps to do
 	while(any(x > 0 for x in pump_steps)):
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
@@ -110,7 +117,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 			if pump_steps[y] > 0:
 				if my_threads[y] == None or my_threads[y].is_alive() == False:
 					next_calls[y] = next_calls[y] + pump_waits[y]
-					my_threads[y] = threading.Timer(next_calls[y] - time.time(), pump_objs[y].move, [pump_m[y], y])
+					my_threads[y] = threading.Timer(next_calls[y] - micro_time(), pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].daemon = True
 					my_threads[y].start()
 					pump_steps[y] -= 1
@@ -278,7 +285,6 @@ elif(MODE == 1):
 
 #alternating direction mode (keyboard entry)
 elif(mode == 2):
-	
 	while(True):
 		#get the number of the pump the user wants to set the movement on.
 		pump_num = raw_input("Pump to move: (exit' or 'e' to exit): ")
@@ -291,7 +297,7 @@ elif(mode == 2):
 				print "Invalid number of repetitions."
 				continue
 			reps_in = abs(reps_in)
-			
+
 			#execute the moves.
 			for x in range(reps_in):
 				simultaneousMove(pump_waits, pump_steps, pump_m)
@@ -305,7 +311,7 @@ elif(mode == 2):
 					pump_m[y] = -1 * pump_m[y]
 
 			#reset values for next entries.
-			for x in range(pump_num):
+			for x in range(NUM_PUMPS):
 				pump_m[x] = 0
 				pump_waits[x] = 0
 				pump_steps[x] = 0
