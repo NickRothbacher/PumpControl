@@ -64,8 +64,7 @@ class Pump:
 			return
 	
 		try:
-			print "moving pump ", num
-			print datetime.datetime.now()
+			print "moving pump ", num, datetime.datetime.now()
 			for x in range(self.steps):
 				gpio.output(self.step, gpio.HIGH)
 				time.sleep(0.002)
@@ -111,7 +110,6 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 			if pump_steps[y] > 0:
 				if my_threads[y] == None or my_threads[y].is_alive() == False:
 					next_calls[y] = next_calls[y] + pump_waits[y]
-					print "making new timer for pump", y
 					my_threads[y] = threading.Timer(next_calls[y] - time.time(), pump_objs[y].move, [pump_m[y], y])
 					my_threads[y].daemon = True
 					my_threads[y].start()
@@ -228,6 +226,12 @@ elif(MODE == 1):
 		#if the user tells the program to start, run the simultaneous movement function
 		if pump_num == "start" or pump_num == "s":
 			simultaneousMove(pump_waits, pump_steps, pump_m)
+			
+			#reset values for next entries.
+			for x in range(pump_num):
+				pump_m[x] = 0
+				pump_waits[x] = 0
+				pump_steps[x] = 0
 			continue
 		#if the user says to exit, do so
 		if pump_num == "exit" or pump_num == "e":
@@ -273,8 +277,80 @@ elif(MODE == 1):
 			print "Invalid pump number"
 
 #alternating direction mode (keyboard entry)
-#elif(mode == 2):
-	#while(True):
-		#pum
+elif(mode == 2):
 	
-	#gpio.cleanup()
+	while(True):
+		#get the number of the pump the user wants to set the movement on.
+		pump_num = raw_input("Pump to move: (exit' or 'e' to exit): ")
+		if pump_num == "start" or pump_num == "s":
+			#ask the user how many times they want to reverse the pumps
+			reps_in = raw_input("How many times should the pump switch (each rep has both directions)?")
+			try :
+				reps_in = int(reps_in)
+			except ValueError:
+				print "Invalid number of repetitions."
+				continue
+			reps_in = abs(reps_in)
+			
+			#execute the moves.
+			for x in range(reps_in):
+				simultaneousMove(pump_waits, pump_steps, pump_m)
+
+				for y in range(len(pump_m)):
+					pump_m[y] = -1 * pump_m[y]
+
+				simultaneousMove(pump_waits, pump_steps, pump_m)
+
+				for y in range(len(pump_m)):
+					pump_m[y] = -1 * pump_m[y]
+
+			#reset values for next entries.
+			for x in range(pump_num):
+				pump_m[x] = 0
+				pump_waits[x] = 0
+				pump_steps[x] = 0
+
+			repetitions = 0
+			continue
+		if pump_num == "exit" or pump_num == "e":
+			gpio.cleanup()
+			sys.exit(0)
+		
+		#parse the entered pump number to an int
+		try:
+			pump_num = int(pump_num)
+		except ValueError:
+			print "Invalid pump number."
+			continue
+
+		#get the number of steps the user would like to make the pump do, parse them and then get the direction and absolute value
+		num_steps = raw_input("Number of steps to move it in: ")
+		
+		try:	
+			num_steps = int(num_steps)
+		except ValueError:
+			print "Invalid step number."
+			continue
+
+		if (num_steps < 0):
+			direction = -1
+		else:
+			direction = 1
+		num_steps = abs(num_steps)
+
+		#get the time these should occur accross and parse it.
+		time_in = raw_input("Time to do steps in (seconds): ")
+		try:
+			time_in = int(time_in)
+		except ValueError:
+			print "Invalid time."
+			continue
+
+
+		#set corresponding list entries for this pump to the correct variables for movement.
+		if pump_num < NUM_PUMPS:
+			pump_waits[pump_num] = (time_in/num_steps) - 0.002
+			pump_steps[pump_num] = num_steps
+			pump_m[pump_num] = direction
+		else:
+			print "Invalid pump number"
