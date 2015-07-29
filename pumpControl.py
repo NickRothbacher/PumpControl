@@ -240,7 +240,7 @@ elif(MODE == 1):
 			simultaneousMove(pump_waits, pump_steps, pump_m)
 			
 			#reset values for next entries.
-			for x in range(pump_num):
+			for x in range(NUM_PUMPS):
 				pump_m[x] = 0
 				pump_waits[x] = 0
 				pump_steps[x] = 0
