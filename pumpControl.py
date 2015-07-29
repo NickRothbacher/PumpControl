@@ -95,7 +95,7 @@ pump_waits = [0,0,0,0]
 def micro_time():
 	time = datetime.datetime.now()
 
-	return (time.days * 24 * 60 * 60 + c.seconds) + (c.microseconds / 1000000.0)
+	return (time.day * 24 * 60 * 60 + time.second) + (time.microsecond / 1000000.0)
 
 def simultaneousMove(pump_waits, pump_steps, pump_m):
 	#reset the wait time to a known value.
