@@ -108,7 +108,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	
 	move_steps = []
 
-	for x in NUM_PUMPS:
+	for x in range(NUM_PUMPS):
 		move_steps.append(pump_steps[x])
 
 	#loop while there are steps to do
