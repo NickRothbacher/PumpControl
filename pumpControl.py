@@ -117,6 +117,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	for x in range(NUM_PUMPS):
 		move_steps.append(pump_steps[x])
 
+	total_elapsed = 0
 	#loop while there are steps to do
 	while(any(x > 0 for x in pump_steps)):
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
