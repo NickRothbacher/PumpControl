@@ -101,10 +101,16 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	#reset the wait time to a known value.
 	WAIT = 0
 
+	low_wait = pump_waits[0]
+
+	for x in pump_waits:
+		if x < low_wait and x > 0:
+			low_wait = x
+	
 	#init my_threads storage, to keep track of timer threads outside loop.
 	my_threads = [None, None, None, None]
 
-	next_calls = [micro_time(), micro_time(), micro_time(), micro_time()]
+	next_calls = time.time()
 	
 	move_steps = []
 
@@ -112,20 +118,28 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 		move_steps.append(pump_steps[x])
 
 	#loop while there are steps to do
-	while(any(x > 0 for x in move_steps)):
+	while(any(x > 0 for x in pump_steps)):
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
 		#arg as the args for the called function.
 		#The corresponding pump_steps entry is then decremented to reflect change
 		for y in range(NUM_PUMPS):
-			if pump_steps[y] > 0:
-				if my_threads[y] == None or my_threads[y].is_alive() == False:
-					next_calls[y] = next_calls[y] + pump_waits[y]
-					my_threads[y] = threading.Timer(next_calls[y] - micro_time(), pump_objs[y].move, [pump_m[y], y])
-					my_threads[y].daemon = True
-					my_threads[y].start()
-					move_steps[y] -= 1
+			
+			#if pump_steps[y] > 0:
+			#	if my_threads[y] == None or my_threads[y].is_alive() == False:
+				#	next_calls[y] = next_calls[y] + pump_waits[y]
+				#	my_threads[y] = threading.Timer(next_calls[y] - micro_time(), pump_objs[y].move, [pump_m[y], y])
+				#	my_threads[y].daemon = True
+				#	my_threads[y].start()
+				#	move_steps[y] -= 1
+			if(pump_waits[y]%total_elapsed == 0 and pump_steps[y] > 0):
+				pump_objs[y].move(pump_m[y])
+				pump_steps[y] -= 1
+
+		total_elapsed += low_wait
+		next_call = next_call + low_wait
+		time.sleep(next_call - time.time())
 
 #instant input instant movement 
 if (MODE == 0):
