@@ -134,7 +134,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 				#	my_threads[y].daemon = True
 				#	my_threads[y].start()
 				#	move_steps[y] -= 1
-			if(pump_waits[y]%total_elapsed == 0 and pump_steps[y] > 0):
+			if(pump_steps[y] > 0 and pump_waits[y]%total_elapsed == 0):
 				pump_objs[y].move(pump_m[y])
 				pump_steps[y] -= 1
 
