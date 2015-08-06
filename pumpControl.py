@@ -120,6 +120,9 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	total_elapsed = 0
 	#loop while there are steps to do
 	while(any(x > 0 for x in pump_steps)):
+		total_elapsed += low_wait
+		next_call = next_call + low_wait
+		time.sleep(next_call - time.time())
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
 		#then execute the function given as their second arg based on the third
@@ -138,9 +141,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 				pump_objs[y].move(pump_m[y])
 				pump_steps[y] -= 1
 
-		total_elapsed += low_wait
-		next_call = next_call + low_wait
-		time.sleep(next_call - time.time())
+
 
 #instant input instant movement 
 if (MODE == 0):
