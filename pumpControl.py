@@ -110,7 +110,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	#init my_threads storage, to keep track of timer threads outside loop.
 	my_threads = [None, None, None, None]
 
-	next_calls = time.time()
+	next_call = time.time()
 	
 	move_steps = []
 
