@@ -121,7 +121,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 	#loop while there are steps to do
 	while(any(x > 0 for x in pump_steps)):
 		total_elapsed += low_wait
-		next_call = next_call + low_wait
+		next_call = next_call + (low_wait - 0.002)
 		time.sleep(next_call - time.time())
 		#Timers, to handle waits simultaneously, correspond to pump numbers.
 		#Timer threads will sleep for the time given to them as the first arg
@@ -298,7 +298,7 @@ elif(MODE == 1):
 
 		#set corresponding list entries for this pump to the correct variables for movement.
 		if pump_num < NUM_PUMPS:
-			pump_waits[pump_num] = (time_in/num_steps) - 0.002
+			pump_waits[pump_num] = (time_in/num_steps)
 			pump_steps[pump_num] = num_steps
 			pump_m[pump_num] = direction			
 		else:
@@ -376,7 +376,7 @@ elif(mode == 2):
 
 		#set corresponding list entries for this pump to the correct variables for movement.
 		if pump_num < NUM_PUMPS:
-			pump_waits[pump_num] = (time_in/num_steps) - 0.002
+			pump_waits[pump_num] = (time_in/num_steps)
 			pump_steps[pump_num] = num_steps
 			pump_m[pump_num] = direction
 		else:
