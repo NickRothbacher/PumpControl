@@ -211,7 +211,8 @@ if (MODE == 0):
 			elif e.type == pygame.KEYUP:
 				if e.key in (pygame.K_w, pygame.K_s, pygame.K_d, pygame.K_a, pygame.K_UP, pygame.K_DOWN, pygame.K_RIGHT, pygame.K_LEFT):
 					#Stop pump0
-					pump_m[0] = 0
+					for x in range(NUM_PUMPS):
+						pump_m[x] = 0
 
 			if e.type == pygame.locals.JOYAXISMOTION:	#read Analog stick motion
 				x1, y1 = j.get_axis(0), j.get_axis(1) #Left Stick
