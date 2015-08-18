@@ -145,7 +145,7 @@ def simultaneousMove(pump_waits, pump_steps, pump_m):
 
 #instant input instant movement 
 if (MODE == 0):
-	initialize pygame stuff
+	#initialize pygame stuff
 	os.environ["SDL_VIDEODRIVER"] = "dummy"
 	pygame.init()
 	screen = pygame.display.set_mode((640, 480))
@@ -408,11 +408,13 @@ elif(MODE == 3):
 			for x in range(reps_in):
 				#Rows in the pattern
 				for y in range(len(pattern)):
+					next_call = time.time()
 					#iterate over number of steps
 					for z in range(pattern[y][1]):
 						pump_objs[pattern[y][0]].move(pattern[y][2])
 
-						time.sleep(pattern[y][3])
+						next_call = next_call + pattern[y][3]
+						time.sleep(next_call - time.time())
 
 			#reset values for next entries.
 			for x in range(NUM_PUMPS):
@@ -466,6 +468,7 @@ elif(MODE == 3):
 			pattern[order-1][1] = num_steps
 			pattern[order-1][2] = direction
 
+			#Calculate the necessary time to wait for each step and compensate for built in wait time.
 			pattern[order-1][3] = (time_in/num_steps) - 0.002
 		else:
 			print "Invalid pump number"
