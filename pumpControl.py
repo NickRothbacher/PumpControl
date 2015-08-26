@@ -171,10 +171,12 @@ if (MODE == 0):
 	#infiniloop for input
 	while(True):
 		#cycle through the possible channels and set the movement integers based on the input from the channels
+		#pumps are controlled by corresponding channels (0 for 0, 1 for 1, etc)
 		for x in range(CHANNEL_NUM):
 			joy_value = ReadChannel(x)
 			
-			print joy_value
+			#print joy_value
+
 			#joystick center is supposed to be 511.5
 			if joy_value < 500:
 				pump_m[x] = -1 
@@ -196,15 +198,15 @@ if (MODE == 0):
 					pump_m[1] = 1
 				elif e.key == pygame.K_a: #backward motion on pump1
 					pump_m[1] = -1
-				elif e.key == pygame.K_UP:
+				elif e.key == pygame.K_UP: #forward motion on pump2
 					pump_m[2] = 1
-				elif e.key == pygame.K_DOWN:
+				elif e.key == pygame.K_DOWN: #backward motion on pump2
 					pump_m[2] = -1
-				elif e.key == pygame.K_RIGHT:
+				elif e.key == pygame.K_RIGHT: #forward motion on pump3
 					pump_m[3] = 1
-				elif e.key == pygame.K_LEFT:
+				elif e.key == pygame.K_LEFT: #backward motion on pump3
 					pump_m[3] = -1
-				elif e.key == pygame.K_ESCAPE:
+				elif e.key == pygame.K_ESCAPE: #quits the program
 					gpio.cleanup()
 					sys.exit(1)
 
@@ -218,29 +220,47 @@ if (MODE == 0):
 				x1, y1 = j.get_axis(0), j.get_axis(1) #Left Stick
 				y2, x2 = j.get_axis(2), j.get_axis(3) #Right Stick (not in use)
 
-				print x1
-				print y1
-				print x2
-				print xy
+				#print x1
+				#print y1
+				#print x2
+				#print xy
 
 				if x1 < -1 * deadZone:
-					print "Left Joystick 1"
+					pump_m[1] = -1
 
 				if x1 > deadZone:
-					print "Right Joystick 1"
+					pump_m[1] = 1
+
+				if x1 <= deadZone and x1 >= -1*deadZone:
+					pump_m[1] = 0
 
 				if y1 <= deadZone and y1 >= -1*deadZone:
-					m1 = 0 #no motion
+					pump_m[0] = 0 #no motion
 
 				if y1 < -1 *deadZone:
-					print "Up Joystick 1"
-					m1 = 1 #push forward
+					pump_m[0] = 1 #push forward
 
 				if y1 > deadZone:
-					print "Down Joystick 1"
-					m1 = -1 #pull back
+					pump_m[0] = -1 #pull back
+
+				if x2 < -1 * deadZone:
+					pump_m[1] = -1
+
+				if x2 > deadZone:
+					pump_m[1] = 1
+
+				if x2 <= deadZone and x2 >= -1*deadZone:
+					pump_m[1] = 0
+
+				if y2 <= deadZone and y2 >= -1*deadZone:
+					pump_m[0] = 0 #no motion
+
+				if y2 < -1 *deadZone:
+					pump_m[0] = 1 #push forward
+
+				if y2 > deadZone:
+					pump_m[0] = -1 #pull back
 	
-		
 	
 		#resolve movement
 		for x in range(NUM_PUMPS):
