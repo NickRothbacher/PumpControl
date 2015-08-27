@@ -15,7 +15,7 @@ delay = 0.002
 # 1 for single direction movement over a certain time
 # 2 for alternating movement over a certain time
 # 3 for pattern of individual pumps to be entered by the user
-mode = 3
+mode = 0
 
 #number of pumps needed to be controlled by the program, 4 maximum currently
 pumps = 4

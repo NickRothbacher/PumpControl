@@ -178,11 +178,11 @@ if (MODE == 0):
 			#print joy_value
 
 			#joystick center is supposed to be 511.5
-			if joy_value < 500:
+			if joy_value < 300:
 				pump_m[x] = -1 
 				print 
 
-			elif joy_value > 530:
+			elif joy_value > 600:
 				pump_m[x] = 1
 
 			else:
@@ -194,7 +194,7 @@ if (MODE == 0):
 					pump_m[0] = 1
 			 	elif e.key == pygame.K_s: #backward motion on pump0
 					pump_m[0] = -1
-				elif e.key == spygame.K_d: #forward motion on pump1
+				elif e.key == pygame.K_d: #forward motion on pump1
 					pump_m[1] = 1
 				elif e.key == pygame.K_a: #backward motion on pump1
 					pump_m[1] = -1
