@@ -7,7 +7,7 @@ import pygame
 from pygame import locals
 import time
 import RPi.GPIO as gpio
-#import spidev
+import spidev
 import threading
 import datetime
 
